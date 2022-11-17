@@ -29,12 +29,13 @@ router.get('/courses/:id', (async (req, res) => {
 router.post('/users', async (req, res) => {
     await User.create(req.body);
     res.status(201).location('/');
+    res.end();
 });
 
 // Route that creates a new course.
 router.post('/courses', (async (req, res) => {
-  await Course.create(req.body);
   res.status(201).location('/');
+  res.end();
 }));
 
 // Route that updates an existing course.
