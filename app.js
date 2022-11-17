@@ -22,6 +22,9 @@ app.get('/', (req, res) => {
   });
 });
 
+// Add routes.
+app.use('/api', routes);
+
 // send 404 if no other route matched
 app.use((req, res) => {
   res.status(404).json({
