@@ -1,14 +1,6 @@
 'use strict';
 const { Model, DataTypes } = require('sequelize');
 
-/* 
-title (String)
-description (Text)
-estimatedTime (String)
-materialsNeeded (String)
-userId (created in the model associations with the foreignKey property, and equals the id from the users table)
-*/
-
 module.exports = (sequelize) => {
     class Course extends Model {}
     Course.init({
@@ -24,11 +16,12 @@ module.exports = (sequelize) => {
         materialsNeeded: {
             type: DataTypes.STRING
         },
-        userId: {
-            type: DataTypes.STRING
-        }
 
     }, { sequelize });
+
+    Course.associate = (models) => {
+        Course.belongsTo(models.User, { foreignKey: 'userId'})
+    };    
 
     return Course;
 }
