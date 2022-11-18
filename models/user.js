@@ -32,6 +32,10 @@ module.exports = (sequelize) => {
       emailAddress: {
         type: DataTypes.STRING,
         allowNull: false,
+        isEmail: true,
+        unique: {
+          msg: "That email has already been submitted, pleast try again.",
+        },
         validate: {
           notNull: {
             msg: "An email is required",
@@ -42,7 +46,6 @@ module.exports = (sequelize) => {
           isEmail: {
             msg: "Please provide a correct email",
           },
-          unique: true
         },
       },
       password: {

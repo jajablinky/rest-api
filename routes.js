@@ -14,6 +14,8 @@ router.get("/users", authenticateUser, async (req, res) => {
   res.status(200).json({
     firstName: user.firstName,
     lastName: user.lastName,
+    emailAddress: user.emailAddress,
+    userId: user.userId,
   });
 });
 
@@ -26,6 +28,7 @@ router.get("/courses", async (req, res) => {
       "description",
       "estimatedTime",
       "materialsNeeded",
+      "userId"
     ],
     include: [
       {
@@ -40,8 +43,22 @@ router.get("/courses", async (req, res) => {
 
 // Route that returns a course by id
 router.get("/courses/:id", async (req, res) => {
-  res.status(200);
-  res.end();
+  const course = await Course.findByPk(req.params.id);
+  const user = await User.findByPk(course.userId);
+  const courseDisplay = {
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    estimatedTime: course.estimatedTime,
+    materialsNeeded: course.materialsNeeded,
+    userId: course.userId,
+    User: {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailAddress: user.emailAddress
+    }
+  }
+  res.status(200).json(courseDisplay)
 });
 
 // Route that creates a new user.
@@ -68,12 +85,12 @@ router.post("/users", async (req, res) => {
 // Route that creates a new course.
 router.post("/courses", authenticateUser, async (req, res) => {
   try {
-    await Course.create(req.body);
-    const { id } = req.body;
+   const course = await Course.create(req.body);
+    const { id } = course;
     res
       .location(`/courses/${id}`)
       .status(201)
-      .json({ message: "Course successfully created" });
+      .end();
   } catch (error) {
     if (
       error.name === "SequelizeValidationError" ||
@@ -129,7 +146,7 @@ router.delete("/courses/:id", authenticateUser, async (req, res) => {
       where: { id: currentCourse.userId },
     });
     if (currentCourse) {
-      if (currentCourse.userId === currentUser.id) {
+      if (currentCourse.userId === currentUser.Id) {
         await currentCourse.destroy();
         res
           .status(204)
@@ -142,7 +159,7 @@ router.delete("/courses/:id", authenticateUser, async (req, res) => {
     } else {
       res
         .status(404)
-        .json({ message: "That course could not be found, pleast try again." });
+        .json({ message: "That course could not be found, please try again." });
     }
   } catch (error) {
     res.status(500).json({ message: `Error: ${error} while deleting course.` });
