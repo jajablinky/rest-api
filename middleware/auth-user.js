@@ -5,6 +5,7 @@ const { User } = require("../models");
 // Middleware to authenticate the request using Basic Auth.
 exports.authenticateUser = async (req, res, next) => {
   // TODO
+  let message;
   const credentials = auth(req);
   if (credentials) {
     const user = await User.findOne({
