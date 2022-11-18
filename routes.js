@@ -1,16 +1,15 @@
-"use strict";
-
 const express = require("express");
 const { User } = require("./models");
 const { Course } = require("./models");
+const { authenticateUser } = require('./middleware/auth-user');
 
 // Construct a router instance.
 const router = express.Router();
 
 // Route that returns a list of users.
-router.get("/users", async (req, res) => {
-  res.status(200);
-  res.end();
+router.get("/users", authenticateUser, async (req, res) => {
+  const user = req.currentUser;
+  res.status(200).json({message: "it worked" });
 });
 
 // Route that returns a list of courses
@@ -47,7 +46,7 @@ router.post("/users", async (req, res) => {
 });
 
 // Route that creates a new course.
-router.post("/courses", async (req, res) => {
+router.post("/courses", authenticateUser, async (req, res) => {
   try {
     await Course.create(req.body);
     const { id } = req.body;
@@ -69,7 +68,7 @@ router.post("/courses", async (req, res) => {
 });
 
 // Route that updates an existing course.
-router.put("/courses/:id", async (req, res) => {
+router.put("/courses/:id", authenticateUser, async (req, res) => {
   try {
     await Course.update(req.body, {
       where: {
@@ -91,7 +90,7 @@ router.put("/courses/:id", async (req, res) => {
 });
 
 // Route that deletes an existing course.
-router.delete("/courses/:id", async (req, res) => {
+router.delete("/courses/:id", authenticateUser, async (req, res) => {
   await Course.destroy({ where: { id: req.params.id } });
   res.status(204);
 });
