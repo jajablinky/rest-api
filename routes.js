@@ -8,14 +8,14 @@ const user = require("./models/user");
 // Construct a router instance.
 const router = express.Router();
 
-// Route that returns a list of users.
+// Route that returns a user with authentication to check.
 router.get("/users", authenticateUser, async (req, res) => {
   const user = req.currentUser;
   res.status(200).json({
+    id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     emailAddress: user.emailAddress,
-    userId: user.userId,
   });
 });
 
@@ -68,7 +68,7 @@ router.post("/users", async (req, res) => {
     res
       .location("/")
       .status(201)
-      .json({ message: "User successfully created" });
+      .end();
   } catch (error) {
     if (
       error.name === "SequelizeValidationError" ||
@@ -109,9 +109,8 @@ router.put("/courses/:id", authenticateUser, async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id);
     if (course) {
-      if (course.userId === req.body.userId) {
+      if (course.userId === req.currentUser.id) {
         await course.update(req.body);
-
         res
           .status(204)
           .json({ message: `Course: ${course.title} is now updated. ` });
@@ -146,7 +145,7 @@ router.delete("/courses/:id", authenticateUser, async (req, res) => {
       where: { id: currentCourse.userId },
     });
     if (currentCourse) {
-      if (currentCourse.userId === currentUser.Id) {
+      if (currentCourse.userId === req.currentUser.id) {
         await currentCourse.destroy();
         res
           .status(204)
